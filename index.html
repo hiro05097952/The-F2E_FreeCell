@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
+    <title>The F2E - FreeCell</title>
     <script src="js/vue.js"></script>
     <script src="js/Sortable.min.js"></script>
     <script src="js/MultiDrag.js"></script>
@@ -127,7 +127,7 @@
                 intervalID: null,
                 time: 0,
                 option:{
-                    open: false,
+                    open: true,
                     menu: 'rule'
                 },
                 score: 0,
@@ -224,9 +224,6 @@
                         vm.randomColor = JSON.parse(localStorage.getItem(item2));
                     }
                 },
-                // clearCards: function(){
-                    
-                // }
             },
             computed:{
                 numStyle: function(){
