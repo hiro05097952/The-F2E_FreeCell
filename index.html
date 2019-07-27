@@ -128,7 +128,7 @@
                 time: 0,
                 option:{
                     open: true,
-                    menu: 'newGame'
+                    menu: 'rule'
                 },
                 score: 0,
                 completeStatus: 0,
@@ -217,9 +217,7 @@
                 },
                 getData: function(item, item2){
                     let vm = this
-                    if(localStorage.getItem(item)){
-                        console.log('hey');
-                        
+                    if(localStorage.getItem(item)){                        
                         vm.randomNum = JSON.parse(localStorage.getItem(item));
                         vm.randomColor = JSON.parse(localStorage.getItem(item2));
                     }
