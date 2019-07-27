@@ -47,7 +47,7 @@
             <div class="newGame" v-if="option.menu ==='newGame'">
                 <h2></h2>
                 <button @click="option.open = false, time = 0, startCount(), algorithm()">Quit and Start a New Game</button>
-                <button @click="option.open = false, time = 0, startCount(), getData('initialNumber','initialColor')"></button>Restart This Game</button>
+                <button @click="option.open = false, time = 0, startCount(), getData('initialNumber','initialColor')">Restart This Game</button>
                 <button @click="option.open = false, startCount()">Keep Playing</button>
             </div>
             
@@ -128,7 +128,7 @@
                 time: 0,
                 option:{
                     open: true,
-                    menu: 'rule'
+                    menu: 'newGame'
                 },
                 score: 0,
                 completeStatus: 0,
