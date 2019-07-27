@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1280" height="800" viewBox="0 0 1280 800">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="bg_color" data-name="bg color" width="1280" height="800" fill="#2f221a"/>
+    </clipPath>
+    <linearGradient id="linear-gradient" x1="0.5" y1="0.119" x2="0.5" y2="1" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-opacity="0"/>
+      <stop offset="0.448" stop-color="#ceaf48" stop-opacity="0.184"/>
+      <stop offset="1" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="light" x="-9" y="357.91" width="1299.829" height="512.148" filterUnits="userSpaceOnUse">
+      <feOffset dy="3" input="SourceAlpha"/>
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feFlood flood-color="#fff2aa" flood-opacity="0.161"/>
+      <feComposite operator="in" in2="blur"/>
+      <feComposite in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <g id="bg" clip-path="url(#clip-path)">
+    <g id="bg-2" data-name="bg">
+      <rect id="bg_color-2" data-name="bg color" width="1280" height="800" fill="#2f221a"/>
+      <g transform="matrix(1, 0, 0, 1, 0, 0)" filter="url(#light)">
+        <path id="light-2" data-name="light" d="M0,387.91H1281.829V659.758l-348.9,222.3H302.371L0,659.758Z" transform="translate(0 -24)" fill="url(#linear-gradient)"/>
+      </g>
+    </g>
+  </g>
+</svg>

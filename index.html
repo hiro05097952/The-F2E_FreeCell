@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="js/vue.js"></script>
+    <script src="js/Sortable.min.js"></script>
+    <script src="js/MultiDrag.js"></script>
+    <link rel="stylesheet" href="css/all.css">
+    <link href="https://fonts.googleapis.com/css?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div id="app">
+        <div class="option" v-if="option.open">
+
+            <div class="rule" v-if="option.menu === 'rule'">
+                <h2></h2>
+                <a href="#" @click.prevent="option.menu = 'newGame'"></a>
+                <p>Freecell is a one-deck solitaire card game. 
+                    All cards are dealt into 8 tableau piles. 
+                    Four Cells (in the top left corner of the screen) 
+                    and four foundation piles (top right hand corner) 
+                    are placed above the tableau piles. 
+                    <br><br>
+                    The object of the game is to build up all cards 
+                    on foundations from Ace to King by following suit. 
+                    You win when all 52 cards are moved there, 13 to a pile. 
+                    <br><br>
+                    Top cards of tableau piles and cards from Cells are available to play. 
+                    You can build tableau piles down by alternating color. 
+                    Only one card at a time can be moved. 
+                    <br><br>
+                    The top card of any tableau pile can also be moved to any Cell. 
+                    Each Cell (or Reserve space) may contain only one card. 
+                    Cards in the cells can be moved to the foundation 
+                    piles or back to the tableau piles, if possible. 
+                    <br><br>
+                    The rules state that you can move only one card at a time, 
+                    but you can move group of cards in the proper sequence if 
+                    you have enough free (empty) Cells and/or tableau piles.
+                </p>
+            </div>
+
+            <div class="newGame" v-if="option.menu ==='newGame'">
+                <h2></h2>
+                <button @click="option.open = false, time = 0, startCount(), algorithm()">Quit and Start a New Game</button>
+                <button @click="option.open = false, time = 0, startCount(), getData('initialNumber','initialColor')"></button>Restart This Game</button>
+                <button @click="option.open = false, startCount()">Keep Playing</button>
+            </div>
+            
+            <div class="more" v-if="option.menu === 'more'">
+                <h2></h2>
+                <p>There are no more moves available.</p>
+                <button @click="option.open = false, time = 0, startCount(), algorithm()">Quit and Start a New Game</button>
+                <button @click="option.open = false, time = 0, startCount(), getData('initialNumber','initialColor')">Restart This Game</button>
+                <button @click="option.open = false, startCount()">Go back and undo some moves</button>
+            </div>
+
+            <div class="congratulation" v-if="option.menu === 'congratulation'">
+                <h2></h2>
+                <a href="#" @click.prevent></a>
+                <button>Go Back</button>
+                <button>New Game</button>
+                <div></div>
+            </div>
+        </div>
+
+        <ul class="title">
+            <li>
+                <h1></h1>
+            </li>
+            <li>
+                <button class="more" @click="stopCount(), option.open = true, option.menu = 'more'"></button>
+                <h2 class="time">Time:{{timeDisplay}}</h2>
+                <button class="return"></button>
+            </li>
+            <li>
+                <span class="bone"></span>
+                <h2 class="score">Score:{{score}}</h2>
+            </li>
+        </ul>
+
+        <div class="top">
+            <ul class="cacheZone" v-for="item in 4">
+            </ul>
+
+            <div class="doneZone">
+                <ul class="heart done">
+                    <li data-number="0"><p></p></li>
+                </ul>
+                <ul class="club done">
+                    <li data-number="0"><p></p></li>
+                </ul>
+                <ul class="spade done">
+                    <li data-number="0"><p></p></li>
+                </ul>
+                <ul class="diamond done">
+                    <li data-number="0"><p></p></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="randomZone">
+            <ul v-for="(arr, arrkey) in randomNum" class="shuffle">
+                <li v-for="(number, numkey) in arr" :class="[numStyle(number),colorStyle(arrkey, numkey)]" :data-number="number"></li>     
+            </ul>
+        </div>
+
+        <div class="bg">
+            <h3>QUICKLY</h3>
+            <div class="left"></div>
+            <div class="center"></div>
+            <div class="right"></div>
+        </div>
+
+    </div>
+
+    <script>
+        const app = new Vue({
+            el:'#app',
+            data:{
+                randomNum:[],
+                randomColor:[],
+                intervalID: null,
+                time: 0,
+                option:{
+                    open: false,
+                    menu: 'rule'
+                },
+                score: 0,
+                completeStatus: 0,
+            },
+            mounted(){
+                this.shuffle();        
+            },
+            methods: {
+                shuffle: function(){
+                    let vm = this
+
+                    // a=1~4牌組 b=7張牌        
+                    for(let i = 0; i<8 ; i++){
+                        vm.randomNum.push([])
+                        vm.randomColor.push([])
+                    }
+
+                    for(let a = 0; a < 8; a++){
+                    let cards =  a < 4 ? 7 : 6
+                        for(let b = 0; b < cards;){
+                            // c=隨機1~13 d=隨機1~4
+                            let c = Math.floor(Math.random()*13+1)
+                            let d = Math.floor(Math.random()*4+1)
+
+                            // 二維陣列轉一維放進newArr
+                            const newArrC = []
+                            vm.randomNum.forEach(element => { element.forEach(e => {newArrC.push(e)})});
+                            const newArrD = []
+                            vm.randomColor.forEach(element => { element.forEach(e => {newArrD.push(e)})});
+
+                            // 篩選相同數字與花色，同數字不超過4張，同花色不超過13張
+                            const filterC = newArrC.filter(item => {return item === c })
+                            const filterD = newArrD.filter(item => {return item === d })
+
+                            // 連結兩陣列，一數字必須對四種花色
+                            const filterF = []
+                            newArrC.forEach(function(item,index){if(item === c){filterF.push(newArrD[index])}})
+                            
+                            // filterF.length = 0 : 代表陣列裡還未有此數字
+                            if(filterF.length === 0){
+                                vm.randomNum[a].push(c)
+                                vm.randomColor[a].push(d)
+                                b++
+                            }else if(filterF.indexOf(d) === -1 && filterC.length < 4 && filterD.length < 13){
+                                vm.randomNum[a].push(c)
+                                vm.randomColor[a].push(d)
+                                b++
+                            }
+                        }
+                    }
+                },
+                algorithm: function(){
+                    // 隨機演算法：抽取最後一張牌 和 隨機產生的某張牌 調換
+                    let vm = this
+                    for(let a = 7 ; a > -1 ; a--){                        
+                        let length = vm.randomNum[a].length
+                        for(let b = length-1 ; b > -1 ; b--){
+                            let indexA = Math.floor(Math.random()*8)
+                            let indexB = Math.floor(Math.random()*6)
+
+                            let cache = vm.randomNum[a][b]
+                            vm.randomNum[a][b] = vm.randomNum[indexA][indexB]
+                            vm.randomNum[indexA][indexB] = cache
+                            cache = vm.randomColor[a][b]
+                            vm.randomColor[a][b] = vm.randomColor[indexA][indexB]
+                            vm.randomColor[indexA][indexB] = cache
+
+                        }
+                    }
+                    this.saveData('initialNumber',this.randomNum);
+                    this.saveData('initialColor',this.randomColor);
+                },
+                startCount: function(){
+                    let vm = this
+                    this.intervalID = setInterval(function(){
+                        vm.time += 1
+                    },1000)
+                },
+                stopCount: function(){
+                    clearInterval(this.intervalID);
+                    this.intervalID = null
+                },
+                saveData: function(name, item){
+                    const parsed = JSON.stringify(item);
+                    localStorage.setItem(name, parsed)
+                },
+                getData: function(item, item2){
+                    let vm = this
+                    if(localStorage.getItem(item)){
+                        console.log('hey');
+                        
+                        vm.randomNum = JSON.parse(localStorage.getItem(item));
+                        vm.randomColor = JSON.parse(localStorage.getItem(item2));
+                    }
+                },
+                // clearCards: function(){
+                    
+                // }
+            },
+            computed:{
+                numStyle: function(){
+                    return function(num){
+                        switch (num) {
+                            case 1:
+                            return 'num-one';
+                            case 2:
+                            return 'num-two';
+                            case 3:
+                            return 'num-three';
+                            case 4:
+                            return 'num-four';
+                            case 5:
+                            return 'num-five';
+                            case 6:
+                            return 'num-six';
+                            case 7:
+                            return 'num-seven';
+                            case 8:
+                            return 'num-eight';
+                            case 9:
+                            return 'num-nine';
+                            case 10:
+                            return 'num-ten';
+                            case 11:
+                            return 'num-eleven';
+                            case 12:
+                            return 'num-twelve';
+                            case 13:
+                            return 'num-thirteen';
+                        }
+                    }
+                },
+                colorStyle: function(){
+                    let vm = this
+                    return function(arr, key){
+                        switch (vm.randomColor[arr][key]) {
+                            case 1:
+                            return 'heart';
+                            case 2:
+                            return 'club';
+                            case 3:
+                            return 'spade';
+                            case 4:
+                            return 'diamond';
+                        }
+                    }
+                },
+                timeDisplay: function(){
+                    let minute = Math.floor(this.time/60)
+                    minute = minute === 0 ? '00' : minute < 10 ? '0' + String(minute) : minute
+                    let second = Math.floor(this.time%60)                    
+                    second = second === 0 ? '00' : second < 10 ? '0' + String(second) : second
+
+                    return minute +':'+ second
+                },
+            }
+        })
+    </script>
+    <script src="js/all.js"></script>
+</body>
+</html>
